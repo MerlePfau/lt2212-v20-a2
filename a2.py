@@ -2,7 +2,17 @@ import argparse
 import random
 from sklearn.datasets import fetch_20newsgroups
 from sklearn.base import is_classifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import SVC
+from sklearn.decomposition import PCA
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import f1_score
+from sklearn.metrics import recall_score
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import precision_score
+from sklearn.tree import DecisionTreeClassifier
 import numpy as np
+from sklearn.decomposition import TruncatedSVD
 random.seed(42)
 
 
@@ -17,9 +27,61 @@ def part1(samples):
     return X
 
 
+def word_extractor(text):
+    # splits text into words > lowercase > isalpha
+    words = text.split()
+    cleaned_words = [w.lower() for w in words if w and w.isalpha()]
+    return cleaned_words
+
+
+def my_tokenizer(text):
+    # creates list of all tokens in sample
+    tokens = []
+    w = word_extractor(text)
+    tokens.extend(w)
+    tokens = list(set(tokens))
+    return tokens
+
+
+def bag_of_words(columns, wordlist, index_overview):
+    # creates vector for a given sample
+    bag_vector = np.zeros(columns)
+    for word in wordlist:
+        index = index_overview[word]
+        bag_vector[index] += 1
+    return bag_vector
+
+
 def extract_features(samples):
     print("Extracting features ...")
-    pass #Fill this in
+    index_overview = {}
+    list_of_sample_words = []
+    i = 0
+    # saves all words as indices
+    for sample in samples:
+        wordlist = my_tokenizer(sample)
+        list_of_sample_words.append(wordlist)
+        for word in wordlist:
+            if word not in index_overview:
+                index_overview[word] = i
+                i += 1
+    all_words = index_overview.keys()
+    columns = len(all_words)
+    rows = len(samples)
+    # initiate the array
+    features = np.zeros((rows, columns), dtype=np.uint16)
+    sample_number = 0
+    for wordlist in list_of_sample_words:
+        features[sample_number, :] = bag_of_words(columns, wordlist, index_overview)
+        sample_number += 1
+    low_freq = []
+    col_sums = np.sum(features, axis=0)
+    # removes all words with counts <5
+    for i in range(len(col_sums)):
+        if col_sums[i] < 5:
+            low_freq.append(i)
+    extracted_features = np.delete(features, low_freq, axis=1)
+    return extracted_features
 
 
 
@@ -36,9 +98,11 @@ def part2(X, n_dim):
     return X_dr
 
 
-def reduce_dim(X,n=10):
-    #fill this in
-    pass
+def reduce_dim(X, n=10):
+    svd = TruncatedSVD(n_components=n, n_iter=7, random_state=42)
+    return svd.fit_transform(X)
+#    pca = PCA(n_components=n)
+#    return pca.fit_transform(X)
 
 
 
@@ -46,9 +110,9 @@ def reduce_dim(X,n=10):
 #DONT CHANGE THIS FUNCTION EXCEPT WHERE INSTRUCTED
 def get_classifier(clf_id):
     if clf_id == 1:
-        clf = "" # <--- REPLACE THIS WITH A SKLEARN MODEL
+        clf = KNeighborsClassifier(n_neighbors=10)
     elif clf_id == 2:
-        clf = "" # <--- REPLACE THIS WITH A SKLEARN MODEL
+        clf = DecisionTreeClassifier()
     else:
         raise KeyError("No clf with id {}".format(clf_id))
 
@@ -75,26 +139,34 @@ def part3(X, y, clf_id):
 
     #train model
     print("Training classifier ...")
-    train_classifer(clf, X_train, y_train)
+    train_classifier(clf, X_train, y_train)
 
 
-    # evalute model
-    print("Evaluating classcifier ...")
-    evalute_classifier(clf, X_test, y_test)
+    # evaluate model
+    print("Evaluating classifier ...")
+    evaluate_classifier(clf, X_test, y_test)
 
 
-def shuffle_split(X,y):
-    pass # Fill in this
+def shuffle_split(X, y):
+    shuffle = train_test_split(X, y, test_size=0.20, random_state=42)
+    return shuffle
 
 
-def train_classifer(clf, X, y):
+def train_classifier(clf, X, y):
     assert is_classifier(clf)
-    ## fill in this
+    clf.fit(X, y)
+    return clf
 
 
-def evalute_classifier(clf, X, y):
+def evaluate_classifier(clf, X, y):
     assert is_classifier(clf)
-    #Fill this in
+    prediction = clf.predict(X)
+    accuracy = accuracy_score(y, prediction)
+    f = f1_score(y, prediction, average='weighted')
+    recall = recall_score(y, prediction, average='weighted')
+    precision = precision_score(y, prediction, average='weighted')
+    print('accuracy: ', accuracy, ', precision: ', precision, ', recall: ', recall, ', F1 score: ', f)
+    return (accuracy, precision, recall, f1_score)
 
 
 ######
