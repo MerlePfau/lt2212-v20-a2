@@ -39,7 +39,7 @@ def my_tokenizer(text):
     tokens = []
     w = word_extractor(text)
     tokens.extend(w)
-    tokens = list(set(tokens))
+#    tokens = list(set(tokens))      here I made the mistake in the earlier version
     return tokens
 
 
