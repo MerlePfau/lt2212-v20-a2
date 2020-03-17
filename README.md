@@ -12,7 +12,7 @@ Reduction: TruncatedSVD
 KNeighborsClassifier(5):
 100%:  
 50%:  accuracy:  0.37002652519893897 , precision:  0.41519674009666324 , recall:  0.37002652519893897 , F1 score:  0.3758926526400815
-25%:  
+25%:  accuracy:  0.37851458885941647 , precision:  0.4159480224830262 , recall:  0.37851458885941647 , F1 score:  0.38238874959304353
 10%:  accuracy:  0.3750663129973475 , precision:  0.4028828673081433 , recall:  0.3750663129973475 , F1 score:  0.3762090648886889
 5%:   accuracy:  0.36047745358090183 , precision:  0.38323678051048765 , recall:  0.36047745358090183 , F1 score:  0.36028132199715224
 
@@ -46,7 +46,7 @@ DecisionTreeClassifier:
 5%:   accuracy:  0.17320954907161804 , precision:  0.17400052647324638 , recall:  0.17320954907161804 , F1 score:  0.17330835297430522
 
 
-The values are overall a little bit higher when using PCA, but it seems that the impact of the dimensionality reductor was relativly small. The differences were bigger when using the Decision Tree classifiert, than with the KNeighbours Classifier.
+The values are overall very close, when using the two different dimensionality reduction methods. Therefore I conclude that the impact of the dimensionality reductor was relativly small. The differences were bigger when using the Decision Tree classifier, than with the KNeighbours Classifier.
 
 
 
